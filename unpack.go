@@ -382,8 +382,8 @@ func unpack(reader io.Reader, reflected bool) (v reflect.Value, n int, err error
 				return reflect.Value{}, nbytesread, e
 			}
 		default:
-			fmt.Printf("Unsupported code: %d. Returning nil.\n", c)
-			return reflect.ValueOf(nil), nbytesread, nil
+			fmt.Printf("Unsupported code: %d. Returning zero value.\n", c)
+			return reflect.Zero(reflect.TypeOf(nil)), nbytesread, nil
 		}
 	}
 	return retval, nbytesread, nil
