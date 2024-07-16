@@ -388,7 +388,7 @@ func unpack(reader io.Reader, reflected bool) (v reflect.Value, n int, err error
 	return retval, nbytesread, nil
 }
 
-// Reads a value from the reader, unpack and returns it.
+// Reads a value from the reader, unpack and returns it..
 func Unpack(reader io.Reader) (v reflect.Value, n int, err error) {
 	return unpack(reader, false)
 }
