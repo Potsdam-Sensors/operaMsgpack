@@ -1,9 +1,9 @@
 package msgpack
 
 import (
-	"fmt"
 	"io"
 	"reflect"
+	"strconv"
 	"unsafe"
 )
 
@@ -20,7 +20,6 @@ const (
 	FIXARRAYMAX   = 0x9f
 	FIXRAWMAX     = 0xbf
 	FIRSTBYTEMASK = 0xf
-	BIN8          = 0xc4
 )
 
 func readByte(reader io.Reader) (v uint8, err error) {
@@ -382,21 +381,23 @@ func unpack(reader io.Reader, reflected bool) (v reflect.Value, n int, err error
 			if e != nil {
 				return reflect.Value{}, nbytesread, e
 			}
-		case BIN8: // Handling BIN8 type
-			length, e := readByte(reader)
+
+		case 0xD9:
+			strLen, e := readByte(reader)
+			nbytesread++
 			if e != nil {
 				return reflect.Value{}, nbytesread, e
 			}
-			data := make([]byte, length)
-			n, e := reader.Read(data)
-			nbytesread += n + 1 // include the length byte
+			data := make([]byte, strLen)
+			n, e = reader.Read(data)
+			nbytesread += n
 			if e != nil {
 				return reflect.Value{}, nbytesread, e
 			}
-			retval = reflect.ValueOf(data)
+			retval = reflect.ValueOf(string(data))
+
 		default:
-			fmt.Printf("Unsupported code: %d. Returning zero value.\n", c)
-			retval = reflect.Zero(reflect.TypeOf([]byte{}))
+			panic("unsupported code: " + strconv.Itoa(int(c)))
 		}
 	}
 	return retval, nbytesread, nil
