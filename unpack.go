@@ -20,6 +20,7 @@ const (
 	FIXARRAYMAX   = 0x9f
 	FIXRAWMAX     = 0xbf
 	FIRSTBYTEMASK = 0xf
+	BIN8          = 0xc4
 )
 
 func readByte(reader io.Reader) (v uint8, err error) {
@@ -381,9 +382,21 @@ func unpack(reader io.Reader, reflected bool) (v reflect.Value, n int, err error
 			if e != nil {
 				return reflect.Value{}, nbytesread, e
 			}
+		case BIN8: // Handling BIN8 type
+			length, e := readByte(reader)
+			if e != nil {
+				return reflect.Value{}, nbytesread, e
+			}
+			data := make([]byte, length)
+			n, e := reader.Read(data)
+			nbytesread += n + 1 // include the length byte
+			if e != nil {
+				return reflect.Value{}, nbytesread, e
+			}
+			retval = reflect.ValueOf(data)
 		default:
 			fmt.Printf("Unsupported code: %d. Returning zero value.\n", c)
-			retval = reflect.Zero(reflect.TypeOf(int8(0)))
+			retval = reflect.Zero(reflect.TypeOf([]byte{}))
 		}
 	}
 	return retval, nbytesread, nil
