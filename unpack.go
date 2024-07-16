@@ -382,20 +382,6 @@ func unpack(reader io.Reader, reflected bool) (v reflect.Value, n int, err error
 				return reflect.Value{}, nbytesread, e
 			}
 
-		case 0xD9:
-			strLen, e := readByte(reader)
-			nbytesread++
-			if e != nil {
-				return reflect.Value{}, nbytesread, e
-			}
-			data := make([]byte, strLen)
-			n, e = reader.Read(data)
-			nbytesread += n
-			if e != nil {
-				return reflect.Value{}, nbytesread, e
-			}
-			retval = reflect.ValueOf(string(data))
-
 		default:
 			panic("unsupported code: " + strconv.Itoa(int(c)))
 		}
