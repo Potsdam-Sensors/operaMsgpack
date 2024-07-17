@@ -1,6 +1,7 @@
 package msgpack
 
 import (
+	"fmt"
 	"io"
 	"reflect"
 	"strconv"
@@ -177,6 +178,15 @@ func lowfive(u8 uint8) uint {
 }
 
 func unpack(reader io.Reader, reflected bool) (v reflect.Value, n int, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Recovered from panic: %v\n", r)
+			v = reflect.Value{}
+			n = 0
+			err = fmt.Errorf("unpack error: %v", r)
+		}
+	}()
+
 	var retval reflect.Value
 	var nbytesread int
 
